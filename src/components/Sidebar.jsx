@@ -1,5 +1,13 @@
 import React from 'react'
-
+import { Navbar } from '../components/Navbar'
+import { Search } from '../components/Search'
+import { Chats } from '../components/Chats'
 export const Sidebar = () => {
-  return <div>Sidebar</div>
+  return (
+    <div className="sidebar">
+      <Navbar></Navbar>
+      <Search></Search>
+      <Chats></Chats>
+    </div>
+  )
 }
