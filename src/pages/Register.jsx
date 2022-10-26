@@ -2,41 +2,26 @@ import React from 'react'
 import { useState, useEffect, useRef } from 'react'
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import Add from '../assets/img/addAvatar.png'
-import { auth, storage, db } from '../services/firebase'
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { doc, setDoc } from 'firebase/firestore'
+import { auth, storage, db, uploadUserImg } from '../services/firebase'
+import { useNavigate } from 'react-router-dom'
 export const Register = () => {
+  const navigate = useNavigate()
   const [userErrMsg, setUserErrMsg] = useState('')
+  const formRef = useRef(null)
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     const displayName = e.target[0].value
     const email = e.target[1].value
     const password = e.target[2].value
-    const file = e.target[3].value
-
+    const file = e.target[3].files[0]
     try {
       const user = await createUserWithEmailAndPassword(auth, email, password)
-      const storageRef = ref(storage, `images/${displayName}-avatar.jpg`)
-      const uploadTask = uploadBytesResumable(storageRef, file)
-      uploadTask.on(
-        (err) => {},
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-            await updateProfile(user.user, {
-              displayName,
-              photoURL: downloadURL,
-            })
-            await setDoc(doc(db, 'users', user.user.uid), {
-              uid: user.user.uid,
-              displayName,
-              email,
-              photoURL: downloadURL,
-            })
-          })
-        }
-      )
+      console.log('user', user)
+
+      await uploadUserImg(user, displayName, file)
+
+      navigate('/')
     } catch (error) {
       console.log('error', error)
       const errorMessage = error.message
@@ -53,7 +38,7 @@ export const Register = () => {
       <div className="form-wrapper">
         <span className="logo">Lama Chat</span>
         <span className="title">Register</span>
-        <form action="" onSubmit={handleSubmit}>
+        <form action="" onSubmit={handleSubmit} ref={formRef}>
           <input type="text " placeholder="display name" />
           <input type="email" placeholder="email" />
           <input type="password" placeholder="password" name="" id="" />
