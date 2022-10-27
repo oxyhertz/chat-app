@@ -1,6 +1,36 @@
 import React from 'react'
-
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  setDoc,
+  doc,
+  updateDoc,
+  serverTimestamp,
+  getDoc,
+} from 'firebase/firestore'
+import { db } from '../services/firebase'
 export const Search = () => {
+  const [user, setUser] = useState(null)
+  const [err, setErr] = useState(false)
+  const [username, setUsername] = useState('')
+  const handleSearch = async () => {
+    const q = query(
+      collection(db, 'users'),
+      where('displayName', '==', username)
+    )
+
+    try {
+      const querySnapshot = await getDocs(q)
+      querySnapshot.forEach((doc) => {
+        setUser(doc.data())
+      })
+    } catch (err) {
+      setErr(true)
+    }
+  }
+
   return (
     <div className="search">
       <div className="search-form">
